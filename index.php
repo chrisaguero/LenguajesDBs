@@ -55,7 +55,7 @@
 			<div class="content">
 				<header>
 					<h2>TurísTicos S.A.</h2>
-					<p>Tu próxima experiencia a un clik de distancia.</p>
+					<p>Tu próxima experiencia a un click de distancia.</p>
 				</header>
 				<span class="image"><img src="images/pic01.jpg" alt="" /></span>
 
