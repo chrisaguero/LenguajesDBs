@@ -2,17 +2,16 @@
 
 function ConectarBaseDatos()
 {
-    $servidor = "localhost";
-    $baseDatos = "turisticos";
+    $servidor = "localhost/orcl";
     $usuario = "root";
     $clave = "root";
 
-    return mysqli_connect($servidor, $usuario, $clave, $baseDatos);
+    return oci_connect($usuario, $clave, $servidor);
 }
 
 function CerrarBaseDatos($enlace)
 {
-    mysqli_close($enlace);
+    oci_close($enlace);
 }
 
 ?>
