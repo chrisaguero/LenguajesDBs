@@ -161,18 +161,32 @@ function CrearUsuario($pass,$mail,$name,$username,$phone){
 
     $respuesta = "";
     try {
-            $enlace = ConectarBaseDatos();
-            $sentencia = "CALL CrearUsuario('$pass','$mail','$name','$username',$phone);";
-            $enlace -> query($sentencia);
-            return 200;
+            $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+            $sentencia = oci_parse($enlace, "begin CrearUsuario(:idrol, :name, :username, :pass, :phone, :mail); end;");
+
+            $rol = 999;
+            oci_bind_by_name($sentencia, ':idrol', $rol);
+            oci_bind_by_name($sentencia, ':name', $name);
+            oci_bind_by_name($sentencia, ':username', $username);
+            oci_bind_by_name($sentencia, ':pass', $pass);
+            oci_bind_by_name($sentencia, ':phone', $phone);
+            oci_bind_by_name($sentencia, ':mail', $mail);
+
+            $respuesta = oci_execute($sentencia);
+            oci_free_statement($sentencia);
+            oci_close($enlace);
+            if ($respuesta){
+                return 200;
+            }
+            
     }
     catch(Exception $ex)
     {
-        $respuesta = $ex -> getMessage();
+        $respuesta = oci_error();
         return 505;
     }
-        CerrarBaseDatos($enlace);
-    
+        oci_close($enlace);
+
     
 }
 
