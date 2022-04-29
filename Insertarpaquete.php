@@ -61,11 +61,11 @@
                 <form method="POST">
 
                     <label for="fechaInicio">Fecha de Inicio</label>
-                    <input type="date" id="fechaInicio" name="fechaInicio" value="<?php echo date('Y-m-d'); ?>" />
+                    <input type="date" id="fechaInicio" name="fechaInicio" value="<?php echo date('d-m-Y'); ?>" />
                     <br>
                     <br>
                     <label for="fechaFinal">Fecha Final</label>
-                    <input type="date" id="fechaFinal" name="fechaFinal" value="<?php echo date('Y-m-d'); ?>" />
+                    <input type="date" id="fechaFinal" name="fechaFinal" value="<?php echo date('d-m-Y'); ?>" />
                     <br>
                     <br>
                     <select id="ComboBoxAlojamientos" name="ComboBoxAlojamientos" class="form-control"

@@ -46,18 +46,28 @@ if(isset($_POST["CargarPaquetes"]))
 //Index - Llena la tabla con ubicaciones
 function CargarUbicaciones()
 {
-    $enlace = ConectarBaseDatos();
-    $sentencia = "CALL CargarUbicaciones();";
-    $listaUsuarios = $enlace -> query($sentencia);
 
-    while($item = mysqli_fetch_array($listaUsuarios))
-    {
-      echo "<tr>";
-      echo "<td>" . $item["NOMBRE_LUGAR"] . "</td>";
-      echo "</tr>";
+    try {
+        $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+        $sentencia = oci_parse("begin CargarUbicaciones(); end;");
+        $respuesta = oci_execute($sentencia);
+        
+        while($item = oci_fetch_array($sentencia, OCI_ASSOC+OCI_RETURN_NULLS)){
+            echo "<tr>";
+            echo "<td>" . $item["NOMBRE_LUGAR"] . "</td>";
+            echo "</tr>";
+        }
     }
+    catch(Exception $ex)
+    {
+            $respuesta = oci_error();
+            
+    }
+    oci_free_statement($sentencia);
+    oci_close($enlace);
 
-    CerrarBaseDatos($enlace);
+
+
 }
 
 if(isset($_POST["LlenarComboAlojamientos"]))
@@ -73,88 +83,140 @@ if(isset($_POST["LlenarComboUbicaciones"]))
 //Llena combobox alojamientos/hoteles
 function LlenarComboUbicaciones()
 {
-    $enlace = ConectarBaseDatos();
-    $sentencia = "CALL LlenarComboUbicaciones();";
-    $listaProductos = $enlace -> query($sentencia);
-    echo '<option value=0>Seleccione Ubicación</option>';
-    while($item = mysqli_fetch_array($listaProductos))
-    {
-        echo '<option value="' . $item["IDUBICACION"] . '">' . $item["NOMBRE_LUGAR"] . '</option>';
-    }
 
-    CerrarBaseDatos($enlace);
+    try {
+        $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+        $sentencia = oci_parse("begin LlenarComboUbicaciones(); end;");
+        $respuesta = oci_execute($sentencia);
+        echo '<option value=0>Seleccione Ubicación</option>';
+        while($item = oci_fetch_array($sentencia, OCI_ASSOC+OCI_RETURN_NULLS)){
+            echo '<option value="' . $item["IDUBICACION"] . '">' . $item["NOMBRE_LUGAR"] . '</option>';
+        }
+    }
+    catch(Exception $ex)
+    {
+            $respuesta = oci_error();
+            
+    }
+    oci_free_statement($sentencia);
+    oci_close($enlace);
+
+
 }
 
 //Llena combobox alojamientos/hoteles
 function LlenarComboAlojamientos()
 {
-    $enlace = ConectarBaseDatos();
-    $sentencia = "CALL llenarComboBoxAlojamientos();";
-    $listaProductos = $enlace -> query($sentencia);
-    echo '<option value=0>Seleccione Hotel</option>';
-    while($item = mysqli_fetch_array($listaProductos))
-    {
-        echo '<option value="' . $item["IDHOTEL"] . '">' . $item["NOMBRE_HOTEL"] . '</option>';
+    try {
+        $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+        $sentencia = oci_parse("begin llenarComboBoxAlojamientos(); end;");
+        $respuesta = oci_execute($sentencia);
+        echo '<option value=0>Seleccione Hotel</option>';
+        while($item = oci_fetch_array($sentencia, OCI_ASSOC+OCI_RETURN_NULLS)){
+            echo '<option value="' . $item["IDHOTEL"] . '">' . $item["NOMBRE_HOTEL"] . '</option>';
+        }
     }
+    catch(Exception $ex)
+    {
+            $respuesta = oci_error();
+            
+    }
+    oci_free_statement($sentencia);
+    oci_close($enlace);
 
-    CerrarBaseDatos($enlace);
+
+    
 }
 
 //Index - Llena la tabla con hoteles
 function CargarHoteles()
 {
-    $enlace = ConectarBaseDatos();
-    $sentencia = "CALL CargarHoteles();";
-    $listaUsuarios = $enlace -> query($sentencia);
+    try {
+        $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+        $sentencia = oci_parse("begin CargarHoteles(); end;");
+        $respuesta = oci_execute($sentencia);
 
-    while($item = mysqli_fetch_array($listaUsuarios))
-    {
+        while($item = oci_fetch_array($sentencia, OCI_ASSOC+OCI_RETURN_NULLS)){
       echo "<tr>";
       echo "<td>" . $item["NOMBRE_HOTEL"] . "</td>";
       echo "</tr>";
     }
+    }
+    catch(Exception $ex)
+    {
+            $respuesta = oci_error();
+            
+    }
+    oci_free_statement($sentencia);
+            oci_close($enlace);
 
-    CerrarBaseDatos($enlace);
+
+    
 }
 
 //Index - Llena la tabla con usuarios
 function CargarUsuarios()
 {
-    $enlace = ConectarBaseDatos();
-    $sentencia = "CALL ConsultarUsuarios();";
-    $listaUsuarios = $enlace -> query($sentencia);
+    try {
+        $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+        $sentencia = oci_parse("begin ConsultarUsuarios(); end;");
+        $respuesta = oci_execute($sentencia);
 
-    while($item = mysqli_fetch_array($listaUsuarios))
-    {
-      echo "<tr>";
-      echo "<td>" . $item["NOMBRE_USUARIO"] . "</td>";
-      echo "<td>" . $item["NOMBRE_COMPLETO"] . "</td>"; 
-      echo "<td>" . $item["IDROL"] . "</td>";
-      echo "<td>" . $item["CORREO"] . "</td>";
-      echo "<td>" . $item["TELEFONO"] . "</td>";
-      if ($item["IDROL"] == '0'){
-        echo '<td><a href="EditarUsuarios.php?HacerAdmin=' . $item["IDUSUARIO"] . '" class="btn btn-info">Hacer Administrador</a></td>'; //aun no es admin
-      }
-      if ($item["IDROL"] == '999' && $item["IDUSUARIO"] != '777'){//es admin pero no es el admin principal
-        echo '<td><a href="EditarUsuarios.php?QuitarAdmin=' . $item["IDUSUARIO"] . '" class="btn btn-info">Remover Rol Administrador</a></td>'; 
-      }
-      if ($item["IDUSUARIO"] != '777'){//valida si este es el usuario admin principal si lo es entonces no se puede eliminar
-        echo '<td><a href="EditarUsuarios.php?EliminarUsuario=' . $item["IDUSUARIO"] . '" class="btn btn-info">Eliminar Usuario</a></td>';  
-      }
-      echo "</tr>";
+        while($item = oci_fetch_array($sentencia, OCI_ASSOC+OCI_RETURN_NULLS)){
+            echo "<tr>";
+            echo "<td>" . $item["NOMBRE_USUARIO"] . "</td>";
+            echo "<td>" . $item["NOMBRE_COMPLETO"] . "</td>"; 
+            echo "<td>" . $item["IDROL"] . "</td>";
+            echo "<td>" . $item["CORREO"] . "</td>";
+            echo "<td>" . $item["TELEFONO"] . "</td>";
+            if ($item["IDROL"] == '0'){
+              echo '<td><a href="EditarUsuarios.php?HacerAdmin=' . $item["IDUSUARIO"] . '" class="btn btn-info">Hacer Administrador</a></td>'; //aun no es admin
+            }
+            if ($item["IDROL"] == '999' && $item["IDUSUARIO"] != '777'){//es admin pero no es el admin principal
+              echo '<td><a href="EditarUsuarios.php?QuitarAdmin=' . $item["IDUSUARIO"] . '" class="btn btn-info">Remover Rol Administrador</a></td>'; 
+            }
+            if ($item["IDUSUARIO"] != '777'){//valida si este es el usuario admin principal si lo es entonces no se puede eliminar
+              echo '<td><a href="EditarUsuarios.php?EliminarUsuario=' . $item["IDUSUARIO"] . '" class="btn btn-info">Eliminar Usuario</a></td>';  
+            }
+            echo "</tr>";
+        }
+
+        oci_free_statement($sentencia);
+        oci_close($enlace);
+        if ($respuesta){
+            return $respuesta;
+        }
     }
+    catch(Exception $ex)
+    {
+            $respuesta = oci_error();
+            return 505;
+    }
+            oci_close($enlace);
 
-    CerrarBaseDatos($enlace);
+
 }
 
 function ConsultarUsuario($user,$pass){
 
-    $enlace = ConectarBaseDatos();
-
-    $sentencia = "CALL ValidarUsuario('$user','$pass');";
-    $usuario = $enlace -> query($sentencia);
-    CerrarBaseDatos($enlace);
-    return mysqli_fetch_array($usuario);
+try {
+    $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+    $sentencia = oci_parse("begin ValidarUsuario(':user',':pass'); end;");
+    oci_bind_by_name($sentencia, ':user', $user);
+    oci_bind_by_name($sentencia, ':pass', $pass);
+    $respuesta = oci_execute($sentencia);
+    oci_free_statement($sentencia);
+    oci_close($enlace);
+    if ($respuesta){
+        return $respuesta;
+    }
+}
+catch(Exception $ex)
+{
+        $respuesta = oci_error();
+        return 505;
+}
+        oci_close($enlace);
 }
 
 function CrearUsuario($pass,$mail,$name,$username,$phone){
@@ -194,38 +256,46 @@ function CrearUsuario($pass,$mail,$name,$username,$phone){
 function CargarPaquetes()
 {
     
-     $enlace = ConectarBaseDatos();
+    try {
+        $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+        $sentencia = oci_parse("begin ConsultarPaquetes(); end;");
+        $respuesta = oci_execute($sentencia);
 
-     $sentencia = "CALL ConsultarPaquetes();";
-     $listaPaquetes = $enlace -> query($sentencia);
+        while($item = oci_fetch_array($sentencia, OCI_ASSOC+OCI_RETURN_NULLS)){
+            echo "<tr>";
+            echo "<td>" . $item["id"] . "</td>";
+            echo "<td>" . $item["FECHA_INICIO"] . "</td>";
+            echo "<td>" . $item["FECHA_FINAL"] . "</td>";
+            echo "<td>" . $item["4"] . "</td>"; // Por alguna razon no desplegaba cuando se usa el nombre del array pero si el index
+            echo "<td>" . $item["NOMBRE_LUGAR"] . "</td>";
+            echo "<td>" . "$".$item["precio"] . "</td>";
+            echo "</tr>";
+        }
 
-     while($item = mysqli_fetch_array($listaPaquetes))
-      {
-       echo "<tr>";
-       echo "<td>" . $item["id"] . "</td>";
-       echo "<td>" . $item["FECHA_INICIO"] . "</td>";
-       echo "<td>" . $item["FECHA_FINAL"] . "</td>";
-       echo "<td>" . $item["4"] . "</td>"; // Por alguna razon no desplegaba cuando se usa el nombre del array pero si el index
-       echo "<td>" . $item["NOMBRE_LUGAR"] . "</td>";
-       echo "<td>" . "$".$item["precio"] . "</td>";
-       echo "</tr>";
-         }
+        oci_free_statement($sentencia);
+        oci_close($enlace);
 
-     CerrarBaseDatos($enlace);
+    }
+    catch(Exception $ex)
+    {
+            $respuesta = oci_error();
+            
+    }
+            oci_close($enlace);
+
+
 }
 
 //nueva funcion luego de cambios en la tabla
 function CargarPaquetesAdmin()
 {
-    
-     $enlace = ConectarBaseDatos();
+    try {
+        $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+        $sentencia = oci_parse("begin ConsultarPaquetes(); end;");
+        $respuesta = oci_execute($sentencia);
 
-     $sentencia = "CALL ConsultarPaquetes();";
-     $listaPaquetes = $enlace -> query($sentencia);
-
-     while($item = mysqli_fetch_array($listaPaquetes))
-      {
-       echo "<tr>";
+        while($item = oci_fetch_array($sentencia, OCI_ASSOC+OCI_RETURN_NULLS)){
+            echo "<tr>";
        echo "<td>" . $item["id"] . "</td>";
        echo "<td>" . $item["FECHA_INICIO"] . "</td>";
        echo "<td>" . $item["FECHA_FINAL"] . "</td>";
@@ -235,56 +305,87 @@ function CargarPaquetesAdmin()
        echo '<td><a href="Editarpaquete.php?q=' . $item["id"] . '" class="button">Editar</a></td>';
        echo '<td><a href="Eliminar.php?q=' . $item["id"] . '" class="button">Eliminar</a></td>';
        echo "</tr>";
-         }
+        }
 
-     CerrarBaseDatos($enlace);
+        oci_free_statement($sentencia);
+        oci_close($enlace);
+
+    }
+    catch(Exception $ex)
+    {
+            $respuesta = oci_error();
+            
+    }
+            oci_close($enlace);
+
 }
 
 //anterior funcion antes de cambios en la tabla
 function ConsultarPaquetes()
 {
     
+    
 
-     $enlace = ConectarBaseDatos();
+     try {
+        $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+        $sentencia = oci_parse("begin ConsultarPaquetes(); end;");
+        $respuesta = oci_execute($sentencia);
 
-     $sentencia = "CALL ConsultarPaquetes();";
-     $listaPaquetes = $enlace -> query($sentencia);
+        while($item = oci_fetch_array($sentencia, OCI_ASSOC+OCI_RETURN_NULLS)){
 
-     while($item = mysqli_fetch_array($listaPaquetes))
-      {
-       echo "<tr>";
-       echo "<td>" . $item["id"] . "</td>";
-       echo "<td>" . $item["lugar"] . "</td>";
-       echo "<td>" . $item["alojamiento"] . "</td>";
-       echo "<td>" . "$".$item["precio"] . "</td>";
-       echo '<td><a href="Editarpaquete.php?q=' . $item["id"] . '" class="button">Editar</a></td>';
-       echo '<td><a href="Eliminar.php?q=' . $item["id"] . '" class="button">Eliminar</a></td>';
-       echo "</tr>";
-         }
+            echo "<tr>";
+            echo "<td>" . $item["id"] . "</td>";
+            echo "<td>" . $item["lugar"] . "</td>";
+            echo "<td>" . $item["alojamiento"] . "</td>";
+            echo "<td>" . "$".$item["precio"] . "</td>";
+            echo '<td><a href="Editarpaquete.php?q=' . $item["id"] . '" class="button">Editar</a></td>';
+            echo '<td><a href="Eliminar.php?q=' . $item["id"] . '" class="button">Eliminar</a></td>';
+            echo "</tr>";
+        }
 
-     CerrarBaseDatos($enlace);
+        oci_free_statement($sentencia);
+        oci_close($enlace);
+
+    }
+    catch(Exception $ex)
+    {
+            $respuesta = oci_error();
+            
+    }
+            oci_close($enlace);
+
 }
 
 function ConsultarHoteles()
 {
 
+    try {
+        $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+        $sentencia = oci_parse("begin ConsultarHoteles(); end;");
+        $respuesta = oci_execute($sentencia);
 
-     $enlace = ConectarBaseDatos();
+        while($item = oci_fetch_array($sentencia, OCI_ASSOC+OCI_RETURN_NULLS)){
 
-     $sentencia = "CALL ConsultarHoteles();";
-     $listaHoteles = $enlace -> query($sentencia);
+            echo "<tr>";
+            echo "<td>" . $item["IDHOTEL"] . "</td>";
+            echo "<td>" . $item["NOMBRE_HOTEL"] . "</td>";
+            echo '<td><a href="Editarhotel.php?q=' . $item["IDHOTEL"] . '" class="button">Editar</a></td>';
+            echo '<td><a href="Eliminarhotel.php?q=' . $item["IDHOTEL"] . '" class="button">Eliminar</a></td>';
+            echo "</tr>";
+        }
 
-     while($item = mysqli_fetch_array($listaHoteles))
-      {
-       echo "<tr>";
-       echo "<td>" . $item["IDHOTEL"] . "</td>";
-       echo "<td>" . $item["NOMBRE_HOTEL"] . "</td>";
-       echo '<td><a href="Editarhotel.php?q=' . $item["IDHOTEL"] . '" class="button">Editar</a></td>';
-       echo '<td><a href="Eliminarhotel.php?q=' . $item["IDHOTEL"] . '" class="button">Eliminar</a></td>';
-       echo "</tr>";
-         }
+        oci_free_statement($sentencia);
+        oci_close($enlace);
 
-     CerrarBaseDatos($enlace);
+    }
+    catch(Exception $ex)
+    {
+            $respuesta = oci_error();
+            
+    }
+            oci_close($enlace);
+
+
 }
 
 function ModificarHotel($idhotel, $nombreh)
@@ -294,7 +395,11 @@ function ModificarHotel($idhotel, $nombreh)
     try
     {
         $enlace = ConectarBaseDatos();
-        $sentencia = "CALL ModificarHotel($idhotel, '$nombreh');";
+        $sentencia = "CALL ModificarHotel(:idhotel, :nombreh);";
+
+        oci_bind_by_name($sentencia, ':idhotel', $idhotel);
+        oci_bind_by_name($sentencia, ':nombreh', $nombreh);
+
         $enlace -> query($sentencia);
     }
     catch(Exception $ex)
@@ -304,217 +409,327 @@ function ModificarHotel($idhotel, $nombreh)
 
     CerrarBaseDatos($enlace);
     return $respuesta;
+
 }
 
 function ConsultarHotel($ident)
 {
-    $enlace = ConectarBaseDatos();
-    $sentencia = "CALL ConsultarHotel($ident);";
-    $hotel = $enlace -> query($sentencia);
-    CerrarBaseDatos($enlace);
 
-    return mysqli_fetch_array($hotel);
+    try {
+        $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+        $sentencia = oci_parse("begin ConsultarHotel(':ident'); end;");
+        oci_bind_by_name($sentencia, ':ident', $ident);
+        $respuesta = oci_execute($sentencia);
+        oci_free_statement($sentencia);
+        oci_close($enlace);
+        if ($respuesta){
+            return $respuesta;
+        }
+    }
+    catch(Exception $ex)
+    {
+            $respuesta = oci_error();
+    }
+            oci_close($enlace);
 }
 function EliminarHotel($idhotel)
 {
     $respuesta = "";
 
-    try
-    {
-        $enlace = ConectarBaseDatos();
-        $sentencia = "CALL Eliminarhotel($idhotel);";
-        $enlace -> query($sentencia);
+
+    try {
+        $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+        $sentencia = oci_parse("begin Eliminarhotel(':idhotel'); end;");
+        oci_bind_by_name($sentencia, ':idhotel', $idhotel);
+        $respuesta = oci_execute($sentencia);
+        oci_free_statement($sentencia);
+        oci_close($enlace);
+
     }
     catch(Exception $ex)
     {
-        $respuesta = $ex -> getMessage();
+            $respuesta = oci_error();
     }
-
-    CerrarBaseDatos($enlace);
-    return $respuesta;
+            oci_close($enlace);
 }
 
 function InsertarHotel( $nombreh)
 {
     $respuesta = "";
-try {
-        $enlace = ConectarBaseDatos();
-        $sentencia = "CALL InsertarHotel( '$nombreh');";
-        $enlace -> query($sentencia);
-}
-catch(Exception $ex)
-{
-    $respuesta = $ex -> getMessage();
-}
-    CerrarBaseDatos($enlace);
-}
 
+
+    try {
+        $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+        $sentencia = oci_parse("begin InsertarHotel(':nombreh'); end;");
+        oci_bind_by_name($sentencia, ':nombreh', $nombreh);
+        $respuesta = oci_execute($sentencia);
+        oci_free_statement($sentencia);
+        oci_close($enlace);
+
+    }
+    catch(Exception $ex)
+    {
+            $respuesta = oci_error();
+    }
+            oci_close($enlace);
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function ConsultarUbicaciones()
 {
+    try {
+        $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+        $sentencia = oci_parse("begin ConsultarUbicaciones(); end;");
+        $respuesta = oci_execute($sentencia);
+
+        while($item = oci_fetch_array($sentencia, OCI_ASSOC+OCI_RETURN_NULLS)){
+            echo "<tr>";
+            echo "<td>" . $item["IDUBICACION"] . "</td>";
+            echo "<td>" . $item["NOMBRE_LUGAR"] . "</td>";
+            echo '<td><a href="Editarubicacion.php?q=' . $item["IDUBICACION"] . '" class="button">Editar</a></td>';
+            echo '<td><a href="Eliminarubicacion.php?q=' . $item["IDUBICACION"] . '" class="button">Eliminar</a></td>';
+            echo "</tr>";
+        }
+
+        oci_free_statement($sentencia);
+        oci_close($enlace);
+
+    }
+    catch(Exception $ex)
+    {
+            $respuesta = oci_error();
+            
+    }
+            oci_close($enlace);
 
 
-     $enlace = ConectarBaseDatos();
-
-     $sentencia = "CALL ConsultarUbicaciones();";
-     $listaUbicaciones = $enlace -> query($sentencia);
-
-     while($item = mysqli_fetch_array($listaUbicaciones))
-      {
-       echo "<tr>";
-       echo "<td>" . $item["IDUBICACION"] . "</td>";
-       echo "<td>" . $item["NOMBRE_LUGAR"] . "</td>";
-       echo '<td><a href="Editarubicacion.php?q=' . $item["IDUBICACION"] . '" class="button">Editar</a></td>';
-       echo '<td><a href="Eliminarubicacion.php?q=' . $item["IDUBICACION"] . '" class="button">Eliminar</a></td>';
-       echo "</tr>";
-         }
-
-     CerrarBaseDatos($enlace);
 }
 
 function ModificarUbicacion($idubi, $nombreu)
 {
-    $respuesta = "";
 
-    try
-    {
-        $enlace = ConectarBaseDatos();
-        $sentencia = "CALL ModificarUbicacion($idubi, '$nombreu');";
-        $enlace -> query($sentencia);
+
+        $respuesta = "";
+
+
+    try {
+        $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+        $sentencia = oci_parse("begin ModificarUbicacion(':idubi',':nombreu'); end;");
+        oci_bind_by_name($sentencia, ':idubi', $idubi);
+        oci_bind_by_name($sentencia, ':nombreu', $nombreu);
+        $respuesta = oci_execute($sentencia);
+        oci_free_statement($sentencia);
+        oci_close($enlace);
+        return $respuesta;
     }
     catch(Exception $ex)
     {
-        $respuesta = $ex -> getMessage();
+            $respuesta = oci_error();
     }
-
-    CerrarBaseDatos($enlace);
-    return $respuesta;
+            oci_close($enlace);
 }
 
 function ConsultarUbicacion($idubi)
 {
-    $enlace = ConectarBaseDatos();
-    $sentencia = "CALL ConsultarUbicacion($idubi);";
-    $hotel = $enlace -> query($sentencia);
-    CerrarBaseDatos($enlace);
 
-    return mysqli_fetch_array($hotel);
+
+    try {
+        $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+        $sentencia = oci_parse("begin ConsultarUbicacion(':idubi'); end;");
+        oci_bind_by_name($sentencia, ':idubi', $idubi);
+        $respuesta = oci_execute($sentencia);
+
+        return $respuesta;
+        oci_free_statement($sentencia);
+        oci_close($enlace);
+
+    }
+    catch(Exception $ex)
+    {
+            $respuesta = oci_error();
+            
+    }
+            oci_close($enlace);
 }
 
 function EliminarUbicacion($idubi)
 {
-    $respuesta = "";
 
-    try
-    {
-        $enlace = ConectarBaseDatos();
-        $sentencia = "CALL EliminarUbicacion($idubi);";
-        $enlace -> query($sentencia);
+
+    try {
+        $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+        $sentencia = oci_parse("begin EliminarUbicacion(':idubi'); end;");
+        oci_bind_by_name($sentencia, ':idubi', $idubi);
+        $respuesta = oci_execute($sentencia);
+
+        return $respuesta;
+        oci_free_statement($sentencia);
+        oci_close($enlace);
+
     }
     catch(Exception $ex)
     {
-        $respuesta = $ex -> getMessage();
+            $respuesta = oci_error();
+            
     }
-
-    CerrarBaseDatos($enlace);
-    return $respuesta;
+            oci_close($enlace);
 }
 
 
 function InsertarUbicacion( $nombrubi)
 {
     $respuesta = "";
-try {
-        $enlace = ConectarBaseDatos();
-        $sentencia = "CALL InsertarUbicacion( '$nombrubi');";
-        $enlace -> query($sentencia);
-}
-catch(Exception $ex)
-{
-    $respuesta = $ex -> getMessage();
-}
-    CerrarBaseDatos($enlace);
+
+    try {
+        $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+        $sentencia = oci_parse("begin InsertarUbicacion(':nombrubi'); end;");
+        oci_bind_by_name($sentencia, ':nombrubi', $nombrubi);
+        $respuesta = oci_execute($sentencia);
+
+        return $respuesta;
+        oci_free_statement($sentencia);
+        oci_close($enlace);
+
+    }
+    catch(Exception $ex)
+    {
+            $respuesta = oci_error();
+            
+    }
+            oci_close($enlace);
+    
 }
 
 function ConsultarPaquete($identific)
 {
-    $enlace = ConectarBaseDatos();
-    $sentencia = "CALL ConsultarPaquete($identific);";
-    $paquete = $enlace -> query($sentencia);
-    CerrarBaseDatos($enlace);
-    
-    return mysqli_fetch_array($paquete);
+
+    $respuesta = "";
+
+    try {
+        $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+        $sentencia = oci_parse("begin ConsultarPaquete(':identific'); end;");
+        oci_bind_by_name($sentencia, ':identific', $identific);
+        $respuesta = oci_execute($sentencia);
+
+        return $respuesta;
+        oci_free_statement($sentencia);
+        oci_close($enlace);
+
+    }
+    catch(Exception $ex)
+    {
+            $respuesta = oci_error();
+            
+    }
+            oci_close($enlace);
 }
 
 
 function InsertarPaquete($alojam, $fechaInicio, $fechaFinal, $lugar, $precio)
 {
+
+
     $respuesta = "";
-try {
-        $enlace = ConectarBaseDatos();
-        $sentencia = "CALL InsertarPaquete($alojam, '$fechaInicio', '$fechaFinal', $lugar,$precio);";
-        
-        $enlace -> query($sentencia);
-}
-catch(Exception $ex)
-{
-    $respuesta = $ex -> getMessage();
-}
-    CerrarBaseDatos($enlace);
+
+    try {
+        $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+        $sentencia = oci_parse("begin InsertarPaquete(':alojam',':fechaInicio',':fechaFinal',':lugar',':precio'); end;");
+        oci_bind_by_name($sentencia, ':alojam', $alojam);
+        oci_bind_by_name($sentencia, ':fechaInicio', $fechaInicio);
+        oci_bind_by_name($sentencia, ':fechaFinal', $fechaFinal);
+        oci_bind_by_name($sentencia, ':lugar', $lugar);
+        oci_bind_by_name($sentencia, ':precio', $precio);
+        $respuesta = oci_execute($sentencia);
+
+        oci_free_statement($sentencia);
+        oci_close($enlace);
+
+    }
+    catch(Exception $ex)
+    {
+            $respuesta = oci_error();
+            
+    }
+            oci_close($enlace);
 }
 
 function EliminarPaquete($iden)
 {
-    $respuesta = "";
+
     
-    try
-    {
-        $enlace = ConectarBaseDatos();
-        $sentencia = "CALL EliminarPaquete($iden);";
-        $enlace -> query($sentencia);
+    $respuesta = "";
+
+    try {
+        $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+        $sentencia = oci_parse("begin EliminarPaquete(':iden'); end;");
+        oci_bind_by_name($sentencia, ':iden', $iden);
+        $respuesta = oci_execute($sentencia);
+
+        oci_free_statement($sentencia);
+        oci_close($enlace);
+
     }
     catch(Exception $ex)
     {
-        $respuesta = $ex -> getMessage();
+            $respuesta = oci_error();
+            
     }
+            oci_close($enlace);
 
-    CerrarBaseDatos($enlace);
-    return $respuesta;
+
 }
 
 function ModificarPaquete($alojamiento, $FECHA_FINAL, $FECHA_INICIO, $lugar, $precio,$id)
 {
     $respuesta = "";
-    
-    try
-    {
-        $enlace = ConectarBaseDatos();
-        $sentencia = "CALL ModificarPaquete($alojamiento, '$FECHA_FINAL', '$FECHA_INICIO', $lugar,$precio,$id);";
 
-        $enlace -> query($sentencia);
+
+    try {
+        $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+        $sentencia = oci_parse("begin ModificarPaquete(':alojamiento',':FECHA_FINAL',':FECHA_INICIO',':lugar',':precio',':id'); end;");
+        oci_bind_by_name($sentencia, ':alojamiento', $alojamiento);
+        oci_bind_by_name($sentencia, ':FECHA_FINAL', $FECHA_FINAL);
+        oci_bind_by_name($sentencia, ':FECHA_INICIO', $FECHA_INICIO);
+        oci_bind_by_name($sentencia, ':lugar', $lugar);
+        oci_bind_by_name($sentencia, ':precio', $precio);
+        oci_bind_by_name($sentencia, ':id', $id);
+        $respuesta = oci_execute($sentencia);
+
+        oci_free_statement($sentencia);
+        oci_close($enlace);
+
     }
     catch(Exception $ex)
     {
-        $respuesta = $ex -> getMessage();
+            $respuesta = oci_error();
+            
     }
-
-    CerrarBaseDatos($enlace);
-    return $respuesta;
+            oci_close($enlace);
 }
 
 function DropdownUbicaciones()
 {
 
-    $enlace = ConectarBaseDatos();
-    $sentencia = "CALL ConsultarUbicacionesDropdown();";
-    $listaUbicaciones = $enlace->query($sentencia);
 
-    echo "<option value=0>Seleccione</option>";
+    try {
+        $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+        $sentencia = oci_parse("begin ConsultarUbicacionesDropdown(); end;");
+        $respuesta = oci_execute($sentencia);
+        echo "<option value=0>Seleccione</option>";
+        while($item = oci_fetch_array($sentencia, OCI_ASSOC+OCI_RETURN_NULLS)){
+            echo "<option value=" . $item["IDUBICACION"] . ">" . $item["NOMBRE_LUGAR"] .  "</option>";
+        }
 
-    while ($item = mysqli_fetch_array($listaUbicaciones)) {
-        echo "<option value=" . $item["IDUBICACION"] . ">" . $item["NOMBRE_LUGAR"] .  "</option>";
+        oci_free_statement($sentencia);
+        oci_close($enlace);
+
     }
-
-    CerrarBaseDatos($enlace);
+    catch(Exception $ex)
+    {
+            $respuesta = oci_error();
+            
+    }
+            oci_close($enlace);
+    
 }
 
 function ConvertirFecha($fecha)
@@ -531,15 +746,17 @@ function ConsultaFechaS($idUbicacion)
 {
     $respuesta = "";
     try {
-        $enlace = ConectarBaseDatos($idUbicacion);
-        $sentencia = "CALL ConsultarPaqueteConLugar($idUbicacion);";
-        $paquete = $enlace->query($sentencia);
+        $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+        $sentencia = oci_parse("begin ConsultarPaqueteConLugar(':idUbicacion'); end;");
+        oci_bind_by_name($sentencia, ':idUbicacion', $idUbicacion);
+        $paquete = oci_execute($sentencia);
+
     } catch (Exception $ex) {
         $respuesta = $ex->getMessage();
-        CerrarBaseDatos($enlace);
-        return $respuesta;
+        oci_close($enlace);
+        return $paquete;
     }
-    $paqueteEncontrado = mysqli_fetch_array($paquete);
+    $paqueteEncontrado = oci_fetch_array($paquete, OCI_ASSOC+OCI_RETURN_NULLS);
     if ($paqueteEncontrado != null) {
         $fechaS = ConvertirFecha($paqueteEncontrado["FECHA_INICIO"]);
         echo $fechaS;
@@ -552,15 +769,17 @@ function ConsultaFechaR($idUbicacion)
 {
     $respuesta = "";
     try {
-        $enlace = ConectarBaseDatos($idUbicacion);
-        $sentencia = "CALL ConsultarPaqueteConLugar($idUbicacion);";
-        $paquete = $enlace->query($sentencia);
+        $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+        $sentencia = oci_parse("begin ConsultarPaqueteConLugar(':idUbicacion'); end;");
+        oci_bind_by_name($sentencia, ':idUbicacion', $idUbicacion);
+        $paquete = oci_execute($sentencia);
+        
     } catch (Exception $ex) {
         $respuesta = $ex->getMessage();
-        CerrarBaseDatos($enlace);
+        oci_close($enlace);
         return $respuesta;
     }
-    $paqueteEncontrado = mysqli_fetch_array($paquete);
+    $paqueteEncontrado = oci_fetch_array($paquete, OCI_ASSOC+OCI_RETURN_NULLS);
     if ($paqueteEncontrado != null) {
         $fechaR = ConvertirFecha($paqueteEncontrado["FECHA_FINAL"]);
         echo $fechaR;
@@ -573,15 +792,17 @@ function ConsultaIDalojamiento($idUbicacion)
 {
     $respuesta = "";
     try {
-        $enlace = ConectarBaseDatos($idUbicacion);
-        $sentencia = "CALL ConsultarPaqueteConLugar($idUbicacion);";
-        $paquete = $enlace->query($sentencia);
+        $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+        $sentencia = oci_parse("begin ConsultarPaqueteConLugar(':idUbicacion'); end;");
+        oci_bind_by_name($sentencia, ':idUbicacion', $idUbicacion);
+        $paquete = oci_execute($sentencia);
+        
     } catch (Exception $ex) {
         $respuesta = $ex->getMessage();
-        CerrarBaseDatos($enlace);
+        oci_close($enlace);
         return $respuesta;
     }
-    $paqueteEncontrado = mysqli_fetch_array($paquete);
+    $paqueteEncontrado = oci_fetch_array($paquete, OCI_ASSOC+OCI_RETURN_NULLS);
     if ($paqueteEncontrado != null) {
         $alojamientoID = $paqueteEncontrado["alojamiento"];
         echo $alojamientoID;
@@ -594,15 +815,17 @@ function CalcularNombreAlojamiento($idAlojamiento)
 {
     $respuesta = "";
     try {
-        $enlace = ConectarBaseDatos($idAlojamiento);
-        $sentencia = "CALL ConsultarHotel($idAlojamiento);";
-        $paquete = $enlace->query($sentencia);
+        $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+        $sentencia = oci_parse("begin ConsultarHotel(':idUbicacion'); end;");
+        oci_bind_by_name($sentencia, ':idUbicacion', $idUbicacion);
+        $paquete = oci_execute($sentencia);
+
     } catch (Exception $ex) {
         $respuesta = $ex->getMessage();
-        CerrarBaseDatos($enlace);
+        oci_close($enlace);
         return $respuesta;
     }
-    $paqueteEncontrado = mysqli_fetch_array($paquete);
+    $paqueteEncontrado = oci_fetch_array($paquete, OCI_ASSOC+OCI_RETURN_NULLS);
     if ($paqueteEncontrado != null) {
         $NombreAlojamiento = $paqueteEncontrado["NOMBRE_HOTEL"];
         echo $NombreAlojamiento;
@@ -615,15 +838,16 @@ function ConsultaPrecio($idUbicacion)
 {
     $respuesta = "";
     try {
-        $enlace = ConectarBaseDatos($idUbicacion);
-        $sentencia = "CALL ConsultarPaqueteConLugar($idUbicacion);";
-        $paquete = $enlace->query($sentencia);
+        $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+        $sentencia = oci_parse("begin ConsultarPaqueteConLugar(':idUbicacion'); end;");
+        oci_bind_by_name($sentencia, ':idUbicacion', $idUbicacion);
+        $paquete = oci_execute($sentencia);
     } catch (Exception $ex) {
         $respuesta = $ex->getMessage();
-        CerrarBaseDatos($enlace);
+        oci_close($enlace);
         return $respuesta;
     }
-    $paqueteEncontrado = mysqli_fetch_array($paquete);
+    $paqueteEncontrado = oci_fetch_array($paquete, OCI_ASSOC+OCI_RETURN_NULLS);
     if ($paqueteEncontrado != null) {
         $precio = $paqueteEncontrado["precio"];
         echo $precio;
@@ -636,14 +860,18 @@ function ReservarPaquete($idPaquete, $UserID, $totalReserva)
 {
     $respuesta = "";
     try {
-        $enlace = ConectarBaseDatos($idPaquete, $UserID, $totalReserva);
-        $sentencia = "CALL ReservarPaquete($idPaquete, $UserID, $totalReserva);";
-        $enlace->query($sentencia);
+        $enlace = oci_connect("turisticos","turisticos","localhost/orcl");            
+        $sentencia = oci_parse("begin ReservarPaquete(':idPaquete',':UserID',':totalReserva'); end;");
+        oci_bind_by_name($sentencia, ':idPaquete', $idPaquete);
+        oci_bind_by_name($sentencia, ':UserID', $UserID);
+        oci_bind_by_name($sentencia, ':totalReserva', $totalReserva);
+        $paquete = oci_execute($sentencia);
+
     } catch (Exception $ex) {
         $respuesta = $ex->getMessage();
     }
 
-    CerrarBaseDatos($enlace);
+    oci_close($enlace);
     return $respuesta;
 }
 
