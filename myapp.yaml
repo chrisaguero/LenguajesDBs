@@ -18,30 +18,30 @@ spec:
   selector:
     matchLabels:
       app: website
-  replicas: 2
-  template:
-    metadata:
-      labels:
-        app: website
-    spec:
-      containers:
-        - name: website
-          imagePullPolicy: Always
-          image: nginx:latest
-          ports:
-            - containerPort: 8443
-          volumeMounts:
-          - mountPath: /etc/nginx/ssl
-            name: secret-volume
-          - mountPath: /etc/nginx/conf.d
-            name: configmap-volume
-      volumes:
-      - name: secret-volume
-        secret:
-          secretName: backend-tls
-      - name: configmap-volume
-        configMap:
-          name: website-nginx-cm
+    replicas: 2
+    template:
+      metadata:
+        labels:
+          app: website
+      spec:
+        containers:
+          - name: website
+            imagePullPolicy: Always
+            image: nginx:latest
+            ports:
+              - containerPort: 8443
+            volumeMounts:
+            - mountPath: /etc/nginx/ssl
+              name: secret-volume
+            - mountPath: /etc/nginx/conf.d
+              name: configmap-volume
+            volumes:
+            - name: secret-volume
+              secret:
+              secretName: backend-tls
+            - name: configmap-volume
+              configMap:
+              name: website-nginx-cm
 ---
 apiVersion: v1
 kind: ConfigMap
